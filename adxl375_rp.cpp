@@ -88,9 +88,12 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[]) {
         _spi->endTransaction();
 
         read_buf[i] = {
-            .x = static_cast<int16_t>((dx1 << 8) | dx0),
-            .y = static_cast<int16_t>((dy1 << 8) | dy0),
-            .z = static_cast<int16_t>((dz1 << 8) | dz0),
+            .x = (static_cast<int16_t>(dx1 << 8) | dx0) * ADXL375_MG2G_MULTIPLIER *
+                 SENSORS_GRAVITY_STANDARD,
+            .y = (static_cast<int16_t>(dy1 << 8) | dy0) * ADXL375_MG2G_MULTIPLIER *
+                 SENSORS_GRAVITY_STANDARD,
+            .z = (static_cast<int16_t>(dz1 << 8) | dz0) * ADXL375_MG2G_MULTIPLIER *
+                 SENSORS_GRAVITY_STANDARD,
             .timestamp = static_cast<unsigned long>(start_timestamp)
         };
 

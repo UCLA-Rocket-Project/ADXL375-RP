@@ -54,24 +54,28 @@
 
 #define ADXL375_POWER_CTL_MEASURE    (1 << 3)
 
-enum DeviceFrequency : uint8_t {
-    ADXL375_RATE_3200HZ = 0x0F,
-    ADXL375_RATE_1600HZ = 0x0E,
-    ADXL375_RATE_800HZ = 0x0D,
-    ADXL375_RATE_400HZ = 0x0C,
-    ADXL375_RATE_200HZ = 0x0B,
-    ADXL375_RATE_100HZ = 0x0A,
-};
+#define ADXL375_MG2G_MULTIPLIER      (0.049F)
+#define SENSORS_GRAVITY_EARTH        (9.80665F)
+#define SENSORS_GRAVITY_STANDARD     (SENSORS_GRAVITY_EARTH)
 
 struct ADXL375_RP_Reading {
-    int16_t x;
-    int16_t y;
-    int16_t z;
+    float x;
+    float y;
+    float z;
     unsigned long timestamp;
 };
 
 class ADXL375_RP {
   public:
+    enum DeviceFrequency : uint8_t {
+        ADXL375_RATE_3200HZ = 0x0F,
+        ADXL375_RATE_1600HZ = 0x0E,
+        ADXL375_RATE_800HZ = 0x0D,
+        ADXL375_RATE_400HZ = 0x0C,
+        ADXL375_RATE_200HZ = 0x0B,
+        ADXL375_RATE_100HZ = 0x0A,
+    };
+
     ADXL375_RP(SPIClass &spi, uint8_t cs, DeviceFrequency device_frequency);
 
     bool begin();
