@@ -35,7 +35,7 @@
 #define ADXL375_REG_FIFO_STATUS      0x39 // FIFO status
 
 #define ADXL375_DEVICE_ID            0xE5
-#define SPI_FREQUENCY                5E6 // max frequency is 5Mhz
+#define SPI_FREQUENCY                5000000 // max frequency is 5Mhz
 
 #define ADXL375_CMD_READ             (1UL << 7)
 #define ADXL375_CMD_WRITE            (0UL << 7)
@@ -51,6 +51,8 @@
 #define ADXL375_FIFO_ENTRIES_MASK    (0b111111)
 
 #define ADXL375_FIFO_MAX_ENTRIES     33
+
+#define ADXL375_POWER_CTL_MEASURE    (1 << 3)
 
 enum DeviceFrequency : uint8_t {
     ADXL375_RATE_3200HZ = 0x0F,
