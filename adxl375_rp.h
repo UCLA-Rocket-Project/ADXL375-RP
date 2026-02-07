@@ -80,7 +80,7 @@ class ADXL375_RP {
 
     bool begin();
 
-    size_t read(ADXL375_RP_Reading read_buf[]);
+    size_t read(ADXL375_RP_Reading read_buf[], int32_t time_offset = 0);
 
   private:
     SPIClass *_spi;
