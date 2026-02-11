@@ -103,6 +103,32 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int32_t time_offset) {
     return num_entries;
 }
 
+void ADXL375_RP::read_single(ADXL375_RP_Reading &reading, int32_t time_offset) {
+    _spi->beginTransaction(_spi_settings);
+    digitalWrite(_cs, LOW);
+
+    _spi->transfer(ADXL375_CMD_READ | ADXL375_MULTIBYTE | ADXL375_REG_DATAX0);
+    uint8_t dx0 = _spi->transfer(0x0);
+    uint8_t dx1 = _spi->transfer(0x0);
+    uint8_t dy0 = _spi->transfer(0x0);
+    uint8_t dy1 = _spi->transfer(0x0);
+    uint8_t dz0 = _spi->transfer(0x0);
+    uint8_t dz1 = _spi->transfer(0x0);
+
+    digitalWrite(_cs, HIGH);
+    _spi->endTransaction();
+
+    reading.x =
+        (static_cast<int16_t>(dx1 << 8) | dx0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD;
+    reading.y =
+        (static_cast<int16_t>(dy1 << 8) | dy0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD,
+    reading.z =
+        (static_cast<int16_t>(dz1 << 8) | dz0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD,
+    reading.timestamp += micros() + time_offset;
+
+    return;
+}
+
 uint8_t ADXL375_RP::_read_register_single(uint8_t address) {
     // datasheet says you need 5ns of time, but the core's speed causes consecutive instructions to
     // execute > 5ns apart, so we are good

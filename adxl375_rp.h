@@ -82,6 +82,8 @@ class ADXL375_RP {
 
     size_t read(ADXL375_RP_Reading read_buf[], int32_t time_offset = 0);
 
+    void read_single(ADXL375_RP_Reading &reading, int32_t time_offset = 0);
+
   private:
     SPIClass *_spi;
     SPISettings _spi_settings{SPI_FREQUENCY, MSBFIRST, SPI_MODE3};
