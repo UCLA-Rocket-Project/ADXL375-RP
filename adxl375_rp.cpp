@@ -7,22 +7,22 @@ ADXL375_RP::ADXL375_RP(SPIClass &spi, uint8_t cs, DeviceFrequency device_frequen
 
     switch (_device_frequency_code) {
     case ADXL375_RATE_3200HZ:
-        _millis_between_entries = static_cast<float>(1E6) / 3200;
+        _micros_between_entries = static_cast<float>(1E6) / 3200;
         break;
     case ADXL375_RATE_1600HZ:
-        _millis_between_entries = static_cast<float>(1E6) / 1600;
+        _micros_between_entries = static_cast<float>(1E6) / 1600;
         break;
     case ADXL375_RATE_800HZ:
-        _millis_between_entries = static_cast<float>(1E6) / 800;
+        _micros_between_entries = static_cast<float>(1E6) / 800;
         break;
     case ADXL375_RATE_400HZ:
-        _millis_between_entries = static_cast<float>(1E6) / 400;
+        _micros_between_entries = static_cast<float>(1E6) / 400;
         break;
     case ADXL375_RATE_200HZ:
-        _millis_between_entries = static_cast<float>(1E6) / 200;
+        _micros_between_entries = static_cast<float>(1E6) / 200;
         break;
     case ADXL375_RATE_100HZ:
-        _millis_between_entries = static_cast<float>(1E6) / 100;
+        _micros_between_entries = static_cast<float>(1E6) / 100;
         break;
     }
 }
@@ -71,7 +71,7 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int32_t time_offset) {
         num_entries = ADXL375_FIFO_MAX_ENTRIES;
     }
 
-    float start_timestamp = micros() - num_entries * _millis_between_entries + time_offset;
+    float start_timestamp = micros() - num_entries * _micros_between_entries + time_offset;
     for (uint8_t i = 0; i < num_entries; i++) {
         _spi->beginTransaction(_spi_settings);
         digitalWrite(_cs, LOW);
@@ -97,7 +97,7 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int32_t time_offset) {
             .timestamp = static_cast<unsigned long>(start_timestamp)
         };
 
-        start_timestamp += _millis_between_entries;
+        start_timestamp += _micros_between_entries;
     }
 
     return num_entries;
@@ -121,9 +121,11 @@ void ADXL375_RP::read_single(ADXL375_RP_Reading &reading, int32_t time_offset) {
     reading.x =
         (static_cast<int16_t>(dx1 << 8) | dx0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD;
     reading.y =
-        (static_cast<int16_t>(dy1 << 8) | dy0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD,
+        (static_cast<int16_t>(dy1 << 8) | dy0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD;
     reading.z =
-        (static_cast<int16_t>(dz1 << 8) | dz0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD,
+        (static_cast<int16_t>(dz1 << 8) | dz0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD;
+
+    // this is not super accurate, but its just for a sample, so I think it does not matter
     reading.timestamp += micros() + time_offset;
 
     return;

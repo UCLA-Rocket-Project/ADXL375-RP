@@ -90,7 +90,7 @@ class ADXL375_RP {
 
     uint8_t _cs;
     uint8_t _device_frequency_code;
-    float _millis_between_entries;
+    float _micros_between_entries;
 
     uint8_t _read_register_single(uint8_t address);
     void _write_register(uint8_t address, uint8_t value);
