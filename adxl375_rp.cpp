@@ -1,4 +1,5 @@
 #include "adxl375_rp.h"
+#include <cstdint>
 
 ADXL375_RP::ADXL375_RP(SPIClass &spi, uint8_t cs, DeviceFrequency device_frequency)
     : _spi(&spi), _cs(cs), _device_frequency_code(device_frequency) {
@@ -62,7 +63,7 @@ bool ADXL375_RP::begin() {
     return true;
 }
 
-size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int32_t time_offset) {
+size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int64_t current_time) {
     // first get the number of entires in the FIFO
     uint8_t num_entries =
         (_read_register_single(ADXL375_REG_FIFO_STATUS) & ADXL375_FIFO_ENTRIES_MASK);
@@ -71,7 +72,8 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int32_t time_offset) {
         num_entries = ADXL375_FIFO_MAX_ENTRIES;
     }
 
-    float start_timestamp = micros() - num_entries * _micros_between_entries + time_offset;
+    int64_t start_timestamp =
+        current_time - (static_cast<int64_t>(num_entries) * _micros_between_entries);
     for (uint8_t i = 0; i < num_entries; i++) {
         _spi->beginTransaction(_spi_settings);
         digitalWrite(_cs, LOW);
@@ -94,7 +96,7 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int32_t time_offset) {
                  SENSORS_GRAVITY_STANDARD,
             .z = (static_cast<int16_t>(dz1 << 8) | dz0) * ADXL375_MG2G_MULTIPLIER *
                  SENSORS_GRAVITY_STANDARD,
-            .timestamp = static_cast<unsigned long>(start_timestamp)
+            .timestamp = start_timestamp
         };
 
         start_timestamp += _micros_between_entries;
