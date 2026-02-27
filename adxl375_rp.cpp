@@ -72,7 +72,7 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int64_t current_time) {
         num_entries = ADXL375_FIFO_MAX_ENTRIES;
     }
 
-    int64_t start_timestamp =
+    double start_timestamp =
         current_time - (static_cast<int64_t>(num_entries) * _micros_between_entries);
     for (uint8_t i = 0; i < num_entries; i++) {
         _spi->beginTransaction(_spi_settings);
@@ -96,7 +96,7 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int64_t current_time) {
                  SENSORS_GRAVITY_STANDARD,
             .z = (static_cast<int16_t>(dz1 << 8) | dz0) * ADXL375_MG2G_MULTIPLIER *
                  SENSORS_GRAVITY_STANDARD,
-            .timestamp = start_timestamp
+            .timestamp = static_cast<int64_t>(start_timestamp)
         };
 
         start_timestamp += _micros_between_entries;
