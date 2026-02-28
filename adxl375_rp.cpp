@@ -7,23 +7,25 @@ ADXL375_RP::ADXL375_RP(SPIClass &spi, uint8_t cs, DeviceFrequency device_frequen
     digitalWrite(_cs, HIGH);
 
     switch (_device_frequency_code) {
+    // NOTE: the way we are setting this causes some accuracy to be lost with timestamps when using
+    // 3200Hz, but we dont use that
     case ADXL375_RATE_3200HZ:
-        _micros_between_entries = static_cast<float>(1E6) / 3200;
+        _micros_between_entries = 1E6 / 3200;
         break;
     case ADXL375_RATE_1600HZ:
-        _micros_between_entries = static_cast<float>(1E6) / 1600;
+        _micros_between_entries = 1E6 / 1600;
         break;
     case ADXL375_RATE_800HZ:
-        _micros_between_entries = static_cast<float>(1E6) / 800;
+        _micros_between_entries = 1E6 / 800;
         break;
     case ADXL375_RATE_400HZ:
-        _micros_between_entries = static_cast<float>(1E6) / 400;
+        _micros_between_entries = 1E6 / 400;
         break;
     case ADXL375_RATE_200HZ:
-        _micros_between_entries = static_cast<float>(1E6) / 200;
+        _micros_between_entries = 1E6 / 200;
         break;
     case ADXL375_RATE_100HZ:
-        _micros_between_entries = static_cast<float>(1E6) / 100;
+        _micros_between_entries = 1E6 / 100;
         break;
     }
 }
@@ -72,7 +74,7 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int64_t current_time) {
         num_entries = ADXL375_FIFO_MAX_ENTRIES;
     }
 
-    double start_timestamp =
+    int64_t start_timestamp =
         current_time - (static_cast<int64_t>(num_entries) * _micros_between_entries);
     for (uint8_t i = 0; i < num_entries; i++) {
         _spi->beginTransaction(_spi_settings);
