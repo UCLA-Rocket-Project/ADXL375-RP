@@ -42,15 +42,6 @@ bool ADXL375_RP::begin() {
         return false;
     }
 
-    // right justify data, so that data is aligned to LSB
-    _write_register(
-        ADXL375_REG_DATA_FORMAT, ADXL375_SELF_TEST_OFF | ADXL375_SPI_4_WIRE | ADXL375_JUSTIFY
-    );
-    if (_read_register_single(ADXL375_REG_DATA_FORMAT) !=
-        (ADXL375_SELF_TEST_OFF | ADXL375_SPI_4_WIRE | ADXL375_JUSTIFY)) {
-        return false;
-    }
-
     // configure the FIFO to use stream mode
     _write_register(ADXL375_REG_FIFO_CTL, ADXL375_FIFO_MODE_STREAM);
     if (_read_register_single(ADXL375_REG_FIFO_CTL) != ADXL375_FIFO_MODE_STREAM) {
@@ -91,13 +82,17 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int64_t current_time) {
         digitalWrite(_cs, HIGH);
         _spi->endTransaction();
 
+        // NOTE: here, the bit shift operation always promotes the result to an int
+        // As much as possible, always cast back to an int16_t so that the bit pattern
+        // is interpreted properly
+        int16_t x_raw = (static_cast<uint16_t>(dx1) << 8 | static_cast<uint16_t>(dx0));
+        int16_t y_raw = (static_cast<uint16_t>(dy1) << 8 | static_cast<uint16_t>(dy0));
+        int16_t z_raw = (static_cast<uint16_t>(dz1) << 8 | static_cast<uint16_t>(dz0));
+
         read_buf[i] = {
-            .x = (static_cast<int16_t>(dx1 << 8) | dx0) * ADXL375_MG2G_MULTIPLIER *
-                 SENSORS_GRAVITY_STANDARD,
-            .y = (static_cast<int16_t>(dy1 << 8) | dy0) * ADXL375_MG2G_MULTIPLIER *
-                 SENSORS_GRAVITY_STANDARD,
-            .z = (static_cast<int16_t>(dz1 << 8) | dz0) * ADXL375_MG2G_MULTIPLIER *
-                 SENSORS_GRAVITY_STANDARD,
+            .x = x_raw * ADXL375_MULTIPLICATION_FACTOR,
+            .y = y_raw * ADXL375_MULTIPLICATION_FACTOR,
+            .z = z_raw * ADXL375_MULTIPLICATION_FACTOR,
             .timestamp = static_cast<int64_t>(start_timestamp)
         };
 
@@ -122,12 +117,12 @@ void ADXL375_RP::read_single(ADXL375_RP_Reading &reading, int32_t time_offset) {
     digitalWrite(_cs, HIGH);
     _spi->endTransaction();
 
-    reading.x =
-        (static_cast<int16_t>(dx1 << 8) | dx0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD;
-    reading.y =
-        (static_cast<int16_t>(dy1 << 8) | dy0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD;
-    reading.z =
-        (static_cast<int16_t>(dz1 << 8) | dz0) * ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD;
+    reading.x = static_cast<int16_t>(static_cast<int16_t>(dx1) << 8 | static_cast<int16_t>(dx0)) *
+                ADXL375_MULTIPLICATION_FACTOR;
+    reading.y = static_cast<int16_t>(static_cast<int16_t>(dy1) << 8 | static_cast<int16_t>(dy0)) *
+                ADXL375_MULTIPLICATION_FACTOR;
+    reading.z = static_cast<int16_t>(static_cast<int16_t>(dz1) << 8 | static_cast<int16_t>(dz0)) *
+                ADXL375_MULTIPLICATION_FACTOR;
 
     // this is not super accurate, but its just for a sample, so I think it does not matter
     reading.timestamp += micros() + time_offset;
