@@ -35,7 +35,7 @@
 #define ADXL375_REG_FIFO_STATUS       0x39 // FIFO status
 
 #define ADXL375_DEVICE_ID             0xE5
-#define SPI_FREQUENCY                 3500000 // max frequency is 5Mhz
+#define SPI_FREQUENCY                 2000000 // max frequency is 5Mhz
 
 #define ADXL375_CMD_READ              (1UL << 7)
 #define ADXL375_CMD_WRITE             (0UL << 7)
@@ -57,7 +57,7 @@
 #define ADXL375_MG2G_MULTIPLIER       (0.049F)
 #define SENSORS_GRAVITY_EARTH         (9.80665F)
 #define SENSORS_GRAVITY_STANDARD      (SENSORS_GRAVITY_EARTH)
-#define ADXL375_MULTIPLICATION_FACTOR ADXL375_MG2G_MULTIPLIER *SENSORS_GRAVITY_STANDARD
+#define ADXL375_MULTIPLICATION_FACTOR (ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD)
 
 struct ADXL375_RP_Reading {
     float x;
