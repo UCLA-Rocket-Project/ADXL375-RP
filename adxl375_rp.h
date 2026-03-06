@@ -59,6 +59,8 @@
 #define SENSORS_GRAVITY_STANDARD      (SENSORS_GRAVITY_EARTH)
 #define ADXL375_MULTIPLICATION_FACTOR (ADXL375_MG2G_MULTIPLIER * SENSORS_GRAVITY_STANDARD)
 
+#define ADXL375_OFFSET_PER_LSB        (0.196 * SENSORS_GRAVITY_STANDARD)
+
 struct ADXL375_RP_Reading {
     float x;
     float y;
@@ -84,6 +86,9 @@ class ADXL375_RP {
     size_t read(ADXL375_RP_Reading read_buf[], int64_t current_time = 0);
 
     void read_single(ADXL375_RP_Reading &reading, int32_t time_offset = 0);
+
+    // provide values in ms/s^-2 please
+    void configure_offsets(float x, float y, float z);
 
   private:
     SPIClass *_spi;

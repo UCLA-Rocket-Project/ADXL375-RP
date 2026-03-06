@@ -130,6 +130,17 @@ void ADXL375_RP::read_single(ADXL375_RP_Reading &reading, int32_t time_offset) {
     return;
 }
 
+void ADXL375_RP::configure_offsets(float x, float y, float z) {
+    int8_t x_offset = x / ADXL375_OFFSET_PER_LSB;
+    _write_register(ADXL375_REG_OFSX, x_offset);
+
+    int8_t y_offset = y / ADXL375_OFFSET_PER_LSB;
+    _write_register(ADXL375_REG_OFSY, y_offset);
+
+    int8_t z_offset = z / ADXL375_OFFSET_PER_LSB;
+    _write_register(ADXL375_REG_OFSZ, z_offset);
+}
+
 uint8_t ADXL375_RP::_read_register_single(uint8_t address) {
     // datasheet says you need 5ns of time, but the core's speed causes consecutive instructions to
     // execute > 5ns apart, so we are good
