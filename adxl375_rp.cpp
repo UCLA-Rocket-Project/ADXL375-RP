@@ -119,9 +119,6 @@ void ADXL375_RP::read_single(ADXL375_RP_Reading &reading, int32_t time_offset) {
     reading.z = static_cast<int16_t>(static_cast<int16_t>(dz1) << 8 | static_cast<int16_t>(dz0)) *
                 ADXL375_MULTIPLICATION_FACTOR;
 
-    // this is not super accurate, but its just for a sample, so I think it does not matter
-    reading.timestamp += micros() + time_offset;
-
     return;
 }
 
