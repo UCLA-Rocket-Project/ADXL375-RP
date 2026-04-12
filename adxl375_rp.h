@@ -65,7 +65,6 @@ struct ADXL375_RP_Reading {
     float x;
     float y;
     float z;
-    int64_t timestamp;
 };
 
 class ADXL375_RP {
@@ -83,7 +82,7 @@ class ADXL375_RP {
 
     bool begin();
 
-    size_t read(ADXL375_RP_Reading read_buf[], int64_t current_time = 0);
+    size_t read(ADXL375_RP_Reading read_buf[]);
 
     void read_single(ADXL375_RP_Reading &reading, int32_t time_offset = 0);
 

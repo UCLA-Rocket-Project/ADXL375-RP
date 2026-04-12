@@ -56,7 +56,7 @@ bool ADXL375_RP::begin() {
     return true;
 }
 
-size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int64_t current_time) {
+size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[]) {
     // first get the number of entires in the FIFO
     uint8_t num_entries =
         (_read_register_single(ADXL375_REG_FIFO_STATUS) & ADXL375_FIFO_ENTRIES_MASK);
@@ -65,8 +65,6 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int64_t current_time) {
         num_entries = ADXL375_FIFO_MAX_ENTRIES;
     }
 
-    int64_t start_timestamp =
-        current_time - (static_cast<int64_t>(num_entries) * _micros_between_entries);
     for (uint8_t i = 0; i < num_entries; i++) {
         _spi->beginTransaction(_spi_settings);
         digitalWrite(_cs, LOW);
@@ -92,11 +90,8 @@ size_t ADXL375_RP::read(ADXL375_RP_Reading read_buf[], int64_t current_time) {
         read_buf[i] = {
             .x = x_raw * ADXL375_MULTIPLICATION_FACTOR,
             .y = y_raw * ADXL375_MULTIPLICATION_FACTOR,
-            .z = z_raw * ADXL375_MULTIPLICATION_FACTOR,
-            .timestamp = static_cast<int64_t>(start_timestamp)
+            .z = z_raw * ADXL375_MULTIPLICATION_FACTOR
         };
-
-        start_timestamp += _micros_between_entries;
     }
 
     return num_entries;
